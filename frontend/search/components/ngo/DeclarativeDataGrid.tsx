@@ -24,6 +24,7 @@ import {filterUndefOrNull} from "../util/notEmpty";
 import extendedFilter from "../util/datagrid/extendedFilter";
 import {TypeOnSelectionChangeArg} from "@inovua/reactdatagrid-community/types/TypeDataGridProps";
 import {TypeColumns} from "@inovua/reactdatagrid-community/types/TypeColumn";
+import { xor } from 'lodash'
 
 global.moment = moment
 
@@ -90,9 +91,49 @@ const findMatchingRenderer = (c: Partial<ColumnRaw>) =>
       .reduce<boolean>((prev, cur) => prev && (c as any)[cur] === d.match[cur], true))
     ?.render
 
+    const x=[{
+      "name": "contact_email",
+      "type": "string",
+      "header": "EMail",
+      "group": "contact",
+      "defaultWidth": null,
+      "editable": true,
+      "options": {
+      "filter": null,
+      "dateFormat": null,
+      "transform": {
+      "date2Iso": {
+      "inputDateFormat": null
+          },
+      "array2string": {
+      "join": null
+          }
+        }
+      }
+    }, {
+      "name": "test",
+      "type": "string",
+      "header": "ID",
+      "group": "contact",
+      "defaultWidth": null,
+      "editable": true,
+      "options": {
+      "filter": null,
+      "dateFormat": null,
+      "transform": {
+      "date2Iso": {
+      "inputDateFormat": null
+          },
+      "array2string": {
+      "join": null
+          }
+        }
+      }
+    }]
 
 const columns = (columnsRaw: ColumnRaw[], firstColumns?: TypeColumns) => ([
   ...firstColumns,
+  ...x,
   ...columnsRaw
     .map(c => ({
       ...c,
@@ -101,6 +142,7 @@ const columns = (columnsRaw: ColumnRaw[], firstColumns?: TypeColumns) => ([
       editor: editorMappings[c.type as 'boolean']
     }))])
 
+    
 
 function defaultFilterValue(columnsRaw: ColumnRaw[]) {
   return columnsRaw
@@ -186,6 +228,15 @@ const DeclarativeDataGrid = <T, >({
     },
     [onRowSelect, gridRef])
 
+ 
+console.log(columns(columnsRaw, firstColumns))
+console.log(filteredData)
+
+function myFunction(o) 
+{ return ({...o,
+           "test": o.place_city === 'Radeberg' ? '23' : o.place_city,
+           "rw_note": o.place_city === 'Radeberg' ? '23' : o.place_city})
+}
 
   return <DataGrid
     idProperty="id"
@@ -197,8 +248,8 @@ const DeclarativeDataGrid = <T, >({
     onFilterValueChange={filterValueChangeHandler}
     rowIndexColumn
     enableColumnAutosize={false}
-    columns={columns(columnsRaw, firstColumns)}
-    dataSource={filteredData}
+    columns={columns(columnsRaw, firstColumns)} 
+    dataSource={filteredData.map(myFunction)}
     style={{height: '100%'}}
     selected={selectedId}
     onSelectionChange={handleRowSelect}
